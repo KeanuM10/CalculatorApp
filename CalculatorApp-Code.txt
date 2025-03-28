@@ -1,0 +1,94 @@
+package com.example.myapplication
+
+import android.os.Bundle
+import android.widget.Button
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var txtResult: TextView
+    private var currentInput: String = ""
+    private var operator: String? = null
+    private var firstNumber: Double? = null
+    private var isNewInput = true
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        txtResult = findViewById(R.id.txtResult)
+
+        // Number Buttons (0-9)
+        val numberButtons = listOf(
+            findViewById<Button>(R.id.btn0),
+            findViewById<Button>(R.id.btn1),
+            findViewById<Button>(R.id.btn2),
+            findViewById<Button>(R.id.btn3),
+            findViewById<Button>(R.id.btn4),
+            findViewById<Button>(R.id.btn5),
+            findViewById<Button>(R.id.btn6),
+            findViewById<Button>(R.id.btn7),
+            findViewById<Button>(R.id.btn8),
+            findViewById<Button>(R.id.btn9)
+        )
+
+        // Set click listeners for numbers
+        numberButtons.forEach { button ->
+            button.setOnClickListener {
+                if (isNewInput) {
+                    currentInput = button.text.toString()
+                    isNewInput = false
+                } else {
+                    currentInput += button.text
+                }
+                txtResult.text = currentInput
+            }
+        }
+
+        // Operator Buttons
+        val operatorButtons = mapOf(
+            findViewById<Button>(R.id.btnAdd) to "+",
+            findViewById<Button>(R.id.btnSubtract) to "-",
+            findViewById<Button>(R.id.btnMultiply) to "*",
+            findViewById<Button>(R.id.btnDivide) to "/"
+        )
+
+        operatorButtons.forEach { (button, op) ->
+            button.setOnClickListener {
+                if (currentInput.isNotEmpty()) {
+                    firstNumber = currentInput.toDouble()
+                    operator = op
+                    isNewInput = true
+                }
+            }
+        }
+
+        // Equal Button
+        findViewById<Button>(R.id.btnEqual).setOnClickListener {
+            if (firstNumber != null && currentInput.isNotEmpty()) {
+                val secondNumber = currentInput.toDouble()
+                val result = when (operator) {
+                    "+" -> firstNumber!! + secondNumber
+                    "-" -> firstNumber!! - secondNumber
+                    "*" -> firstNumber!! * secondNumber
+                    "/" -> if (secondNumber != 0.0) firstNumber!! / secondNumber else Double.NaN
+                    else -> "Error"
+                }
+                txtResult.text = result.toString()
+                firstNumber = null
+                currentInput = result.toString()
+                operator = null
+                isNewInput = true
+            }
+        }
+
+        // Clear Button
+        findViewById<Button>(R.id.btnClear).setOnClickListener {
+            currentInput = ""
+            firstNumber = null
+            operator = null
+            txtResult.text = "0"
+            isNewInput = true
+        }
+    }
+}
